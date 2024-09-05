@@ -35,6 +35,6 @@ public class BallPlayer : MonoBehaviour
 
         // Applique la vélocité à la boule en fonction de la direction et de la sensibilité
         rb.velocity = direction * sensitivity;
-        vitesse = rb.velocity.magnitude;
+        vitesse = rb.velocity.y;
     }
 }
