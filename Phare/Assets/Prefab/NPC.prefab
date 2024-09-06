@@ -147,3 +147,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   velocity: 0
+  marginOfError: 0.5
+  dotPrefab: {fileID: 7004505548650902120, guid: f7d9605ef4c0441ea9d20d90e13a6ad3, type: 3}

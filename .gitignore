@@ -10,6 +10,14 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 
+/Phare/[Ll]ibrary/
+/Phare/[Tt]emp/
+/Phare/[Oo]bj/
+/Phare/[Bb]uild/
+/Phare/[Bb]uilds/
+/Phare/[Ll]ogs/
+/Phare/[Uu]ser[Ss]ettings/
+
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/

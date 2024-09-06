@@ -5,14 +5,22 @@ using System;
 
 public class GateOpener : MonoBehaviour
 {
+    public static GateOpener Instance;
     public int currentLevel;
+    public int athleteID = -1;
+
+    public string assiaLevel1SoundName = "bump";  // The name of the sound clip to play
+
 
     [SerializeField] private DisplayManager displayManager;
 
-    //Gestion des barrières
+    //Gestion des barriï¿½res
     [SerializeField] private GameObject[] levelBarriers;
-    [SerializeField] float moveSyncWithNPCMargin = 0.2f; // marge d'erreur sur la vélocité quand le joueur se synchro avec les npc
-    private float yThinkOutBox; // hauteur de la barriere pour l'étage où il faut contourner
+    [SerializeField] float moveSyncWithNPCMargin = 0.2f; // marge d'erreur sur la vï¿½locitï¿½ quand le joueur se synchro avec les npc
+    private float yThinkOutBox; // hauteur de la barriere pour l'ï¿½tage oï¿½ il faut contourner
+
+    private float xValidValueLevel1Assia = -7.0f;
+    public float marginOfErrorAssiaLevel1 = 0.5f;
 
     //Gestion des NPC
     [SerializeField] float NPCSpeed;
@@ -24,15 +32,13 @@ public class GateOpener : MonoBehaviour
     private GameObject[] levelNPC;
 
     //Gestion du player
-    [SerializeField] private GameObject controlledBall;
+    [SerializeField] public GameObject controlledBall;
     private Rigidbody rb;
 
     // Start is called before the first frame update
     void Start()
     {
-        currentLevel = 1;
-
-        rb = controlledBall.GetComponent<Rigidbody>();
+        currentLevel = 0;
 
         yThinkOutBox = levelBarriers[1].transform.position.y;
 
@@ -42,52 +48,98 @@ public class GateOpener : MonoBehaviour
         levelNPC = new GameObject[] { level1NPC, level2NPC, level3NPC };
     }
 
+    void Awake()
+    {
+        // Ensure only one instance of the singleton exists
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     private void FixedUpdate()
     {
-        //Gestion des NPC
-        // Calcule la vitesse verticale en fonction du temps, de l'amplitude et de la vitesse
-        NPCvelocity = Mathf.Cos(Time.time * NPCSpeed) * NPCAmplitude;
-        foreach (GameObject npcGroup in levelNPC)
-        {
-            if (npcGroup.activeSelf == true & currentLevel == 1)
-            {
-                foreach (Transform child in npcGroup.transform)
+        if (athleteID == 1){
+            if (currentLevel == 1){
+                rb = controlledBall.GetComponent<Rigidbody>();
+                //Gestion des NPC
+                // Calcule la vitesse verticale en fonction du temps, de l'amplitude et de la vitesse
+                NPCvelocity = Mathf.Cos(Time.time * NPCSpeed) * NPCAmplitude;
+                foreach (GameObject npcGroup in levelNPC)
                 {
+                    if (npcGroup.activeSelf == true)
+                    {
+                        foreach (Transform child in npcGroup.transform)
+                        {
 
-                    // Applique la vélocité au Rigidbody
-                    child.GetComponent<Rigidbody>().velocity = new Vector3(rb.velocity.x, NPCvelocity, rb.velocity.z);
+                            // Applique la vï¿½locitï¿½ au Rigidbody
+                            child.GetComponent<Rigidbody>().velocity = new Vector3(rb.velocity.x, NPCvelocity, rb.velocity.z);
+                        }
+                    }
                 }
+
             }
         }
-
+        else if(athleteID == 2){
+            if(currentLevel == 1){
+            }
+        }     
     }
 
 
     public void OpenGateAttempt(int protectedLevel)
     {
-        //Condition de passage au niveau 2
-        if (currentLevel == 1 & CheckForSynchronicity())
-        {
-            GoToNextLevel();
-            level2NPC.SetActive(true);
+        if(athleteID == 1){
+            //Condition de passage au niveau 2
+            if (currentLevel == 1 & CheckForSynchronicity())
+            {
+                GoToNextLevel();
+                level2NPC.SetActive(true);
 
-        }
-        //Condition de passage au niveau 3
-        if (currentLevel == 2 & CheckForOutsideBox())
-        {
-            GoToNextLevel();
-            level3NPC.SetActive(true);
-        }
-        //Condition de passage au niveau 4
-        if (currentLevel == 3 & CheckForSpeed())
-        {
-            GoToNextLevel();
-        }
+            }
+            //Condition de passage au niveau 3
+            if (currentLevel == 2 & CheckForOutsideBox())
+            {
+                GoToNextLevel();
+                level3NPC.SetActive(true);
+            }
+            //Condition de passage au niveau 4
+            if (currentLevel == 3 & CheckForSpeed())
+            {
+                GoToNextLevel();
+            }
 
-        if (currentLevel == 4 )
-        {
-            Debug.Log("wahou");
+            if (currentLevel == 4 )
+            {
+                Debug.Log("wahou");
+            }
         }
+        else if(athleteID == 2){
+            //Condition de passage au niveau 2
+            if (currentLevel == 1)
+            {
+                if(CheckForPrecisePosition()){
+                    GoToNextLevel();
+                    level2NPC.SetActive(true);
+                }
+                else{
+                    Debug.Log("You are not at the right position");
+                    float distanceToValidPos = Mathf.Abs(controlledBall.transform.position.x - xValidValueLevel1Assia);
+                    Debug.Log($"You are {distanceToValidPos} away from the valid position");
+                    
+                    float scaledValue = ScaleValue(distanceToValidPos, 0f, 10.0f, 3.0f, 0f);
+                    SoundManager.Instance.PlaySound(assiaLevel1SoundName, scaledValue);
+
+                }
+
+
+            }
+        }
+        
     }
 
     //Renvoie true si la boule est assez rapide, false sinon
@@ -108,20 +160,27 @@ public class GateOpener : MonoBehaviour
         else { return false; }  
     }
     
-    //Renvoie true si la balle est assez haute, false sinon. Sert à vérifier que le joeuur a pensé hors de la boite et donc s'est échappé de l'étage 2
+    //Renvoie true si la balle est assez haute, false sinon. Sert ï¿½ vï¿½rifier que le joeuur a pensï¿½ hors de la boite et donc s'est ï¿½chappï¿½ de l'ï¿½tage 2
     private bool CheckForOutsideBox()
     {
         if(controlledBall.transform.position.y > yThinkOutBox) {return true;}
         else { return false; }
     }
 
-    //Renvoie true si la boule a pris assez d'élan, false sinon
+    //Renvoie true si la boule a pris assez d'ï¿½lan, false sinon
     private bool CheckForMomentum()
     {
         return true;
     }
 
-    //Fonction qui déclenche la procédure complète de changement de niveau
+    private bool CheckForPrecisePosition()
+    {
+        
+        if(Mathf.Abs(controlledBall.transform.position.x - xValidValueLevel1Assia) <= marginOfErrorAssiaLevel1) {return true;}
+        else { return false; }
+    }
+
+    //Fonction qui dï¿½clenche la procï¿½dure complï¿½te de changement de niveau
     private void GoToNextLevel()
     {
         currentLevel++;
@@ -138,10 +197,16 @@ public class GateOpener : MonoBehaviour
                 foreach (Transform child in npcGroup.transform)
                 {
 
-                    // Applique la vélocité au Rigidbody
+                    // Applique la vï¿½locitï¿½ au Rigidbody
                     child.GetComponent<Rigidbody>().isKinematic = true;
                 }
             }
         }
+    }
+
+    // Function to scale a value from one range to another
+    private float ScaleValue(float value, float minOriginal, float maxOriginal, float minTarget, float maxTarget)
+    {
+        return ((value - minOriginal) / (maxOriginal - minOriginal)) * (maxTarget - minTarget) + minTarget;
     }
 }

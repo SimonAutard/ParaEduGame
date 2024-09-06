@@ -2,39 +2,41 @@ using UnityEngine;
 
 public class BallPlayer : MonoBehaviour
 {
-    // Sensibilité de la souris
+    // Sensibilitï¿½ de la souris
     public float sensitivity = 10.0f;
 
-    // Référence à la caméra principale
+    // Rï¿½fï¿½rence ï¿½ la camï¿½ra principale
     private Camera mainCamera;
 
-    // Référence au Rigidbody de la boule
+    // Rï¿½fï¿½rence au Rigidbody de la boule
     private Rigidbody rb;
 
     public float vitesse;
 
     void Start()
     {
-        // Récupère la caméra principale
+        // Rï¿½cupï¿½re la camï¿½ra principale
         mainCamera = Camera.main;
 
-        // Récupère le composant Rigidbody attaché à la boule
+        // Rï¿½cupï¿½re le composant Rigidbody attachï¿½ ï¿½ la boule
         rb = GetComponent<Rigidbody>();
     }
 
     void Update()
     {
-        // Récupère la position de la souris en coordonnées d'écran
+        // Rï¿½cupï¿½re la position de la souris en coordonnï¿½es d'ï¿½cran
         Vector3 mousePosition = Input.mousePosition;
 
-        // Convertit la position de la souris en coordonnées du monde
+        // Convertit la position de la souris en coordonnï¿½es du monde
         Vector3 worldPosition = mainCamera.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, mainCamera.nearClipPlane + 1.0f));
 
-        // Calcule la direction du déplacement
+        // Calcule la direction du dï¿½placement
         Vector3 direction = (worldPosition - transform.position);
 
-        // Applique la vélocité à la boule en fonction de la direction et de la sensibilité
+        // Applique la vï¿½locitï¿½ ï¿½ la boule en fonction de la direction et de la sensibilitï¿½
         rb.velocity = direction * sensitivity;
         vitesse = rb.velocity.y;
     }
+
+    
 }
